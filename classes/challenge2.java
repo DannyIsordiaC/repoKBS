@@ -1,0 +1,91 @@
+package test;
+
+import jade.core.Agent;
+import jade.core.behaviours.Behaviour;
+
+import net.sf.clipsrules.jni.*;
+
+public class challenge2 extends Agent {
+
+   Environment clips;
+
+  protected void setup() {
+      try {
+           clips = new Environment();
+      } catch (Exception e){}
+     
+    addBehaviour(new TellBehaviour());
+    addBehaviour(new AskBehaviour());
+  } 
+
+  private class TellBehaviour extends Behaviour {
+
+    boolean tellDone = false;
+
+    public void action() {
+        try{
+          //Market
+          clips.load("C:/JADE/clips/market/templates.clp");
+          clips.load("C:/JADE/clips/market/facts.clp");
+          clips.load("C:/JADE/clips/market/rules.clp");
+
+          //Person
+          clips.load("C:/JADE/clips/persons/load-persons.clp");
+          clips.load("C:/JADE/clips/persons/load-persons-rules.clp");
+
+          //Prodcust
+          clips.load("C:/JADE/clips/prodcust/load-prod-cust.clp");
+          clips.load("C:/JADE/clips/prodcust/load-prodcust-rules.clp");
+
+
+          clips.build("(deftemplate product (slot part-number) (multislot name) (slot category) (slot price))");
+         
+          clips.reset();
+        
+        }catch (Exception e){}
+
+        tellDone = true;
+       
+    } 
+    
+    public boolean done() {
+      if (tellDone)
+        return true;
+      else
+	return false;
+    }
+   
+
+  }    // END of inner class ...Behaviour
+
+
+  private class AskBehaviour extends Behaviour {
+
+    boolean askDone = false;
+
+    public void action() {
+        try{
+         //clips.eval("(reset)");
+         clips.eval("(facts)"); 
+          clips.eval("(rules)");
+
+          clips.run();
+        }catch(Exception e){}
+       askDone = true;
+        
+
+    } 
+    
+    public boolean done() {
+      if (askDone)
+        return true;
+      else
+	return false;
+    }
+   
+    public int onEnd() {
+      myAgent.doDelete();
+      return super.onEnd();
+    } 
+  }    // END of inner class ...Behaviour
+}
